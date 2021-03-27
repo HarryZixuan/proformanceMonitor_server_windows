@@ -62,13 +62,6 @@ http
                 var dataObj = JSON.parse(receivedData);
                 //console.log("received data object: ", dataObj);
                 //console.log("type: ", typeof dataObj);
-                //Here we can decide how to process the data object and what
-                //object to send back to client.
-                //FOR NOW EITHER JUST PASS BACK AN OBJECT
-                //WITH "text" PROPERTY
-
-                //TO DO: return the words array that the client requested
-                //if it exists
 
                 console.log("USER REQUEST: " + dataObj.text);
                 var returnObj = {};
@@ -279,5 +272,4 @@ QRCode.toDataURL('I am pony', function (err, url){
 
 require('openurl').open("http://localhost:3000/userGuide.html");
 
-//console.log("Server Running at http://127.0.0.1:3000  CNTL-C to quit");
 
