@@ -1,0 +1,19 @@
+{
+  "name": "honoursproject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Zixuan Zhang 101027017",
+  "license": "ISC",
+  "dependencies": {
+    "loudness": "^0.4.1",
+    "openurl": "^1.1.1",
+    "qrcode": "^1.4.4",
+    "system-control": "^0.1.1",
+    "systeminformation": "^5.6.7"
+  }
+}
