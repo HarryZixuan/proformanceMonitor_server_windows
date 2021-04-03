@@ -10,10 +10,13 @@
   "author": "Zixuan Zhang 101027017",
   "license": "ISC",
   "dependencies": {
+    "brightness": "^3.0.0",
+    "http-graceful-shutdown": "^3.0.1",
+    "http-shutdown": "^1.2.2",
     "loudness": "^0.4.1",
     "openurl": "^1.1.1",
     "qrcode": "^1.4.4",
     "system-control": "^0.1.1",
-    "systeminformation": "^5.6.7"
+    "systeminformation": "^5.6.10"
   }
 }

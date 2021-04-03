@@ -34,11 +34,11 @@ function handleTimer(){
 function handleSubmitButton (){
     var soundVolume = $('#soundVolumeTextField').val();
     if(soundVolume && soundVolume !=''){
-        var setSoundvolRequestObj = {text: "setSoundVolume", value: soundVolume }; //make object to send to server
+        var setSoundvolRequestObj = {text: "setBrightness", value: soundVolume }; //make object to send to server
         var setSoundVolRequestJSON = JSON.stringify(setSoundvolRequestObj);
     }
 
-    $.post("soundVolume", setSoundVolRequestJSON, function (data, status) {
+    $.post("brightness", setSoundVolRequestJSON, function (data, status) {
         var responseObj = JSON.parse(data);
         alert(responseObj.text);
     });

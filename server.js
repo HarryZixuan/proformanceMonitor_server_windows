@@ -1,9 +1,9 @@
 const { audio } = require('system-control');
-const loudness  = require('loudness')
+const loudness  = require('loudness');
+const brightness = require('brightness');
 var os = require("os");
 const si = require('systeminformation');
 
-var http = require("http"); //need to http
 var fs = require("fs"); //need to read static files
 var url = require("url"); //to parse url strings
 
@@ -37,7 +37,7 @@ var get_mime = function(filename) {
     return MIME_TYPES["txt"];
 };
 
-http
+var server = require('http')
     .createServer(function(request, response) {
         var urlObj = url.parse(request.url, true, false);
         //console.log("\n============================");
@@ -105,12 +105,19 @@ http
                 else if (dataObj.text == "memoryInfo"){
                     getMemoryInfo(response);
                 }
-                else if(dataObj.text == "getSoundVolume"){
-                    getSystemSoundVolume(response);
+                else if(dataObj.text == "getSoundVolAndBrightness"){
+                    getSoundVolAndBrightness(response)
                 }
 
                 else if(dataObj.text == "setSoundVolume"){
                     setSystemSoundVolume(response, dataObj.value);
+                }
+
+                else if(dataObj.text == "setBrightness"){
+                    setBrightness(response, dataObj.value);
+                }
+                else if(dataObj.text == "shutdownServer"){
+                    shutdownServer();
                 }
 
 
@@ -138,8 +145,10 @@ http
                 });
             }
         });
-    })
-    .listen(3000);
+    }).listen(3000);
+
+
+
 
 
 
@@ -241,18 +250,18 @@ async function getMemoryInfo(response) {
     returnObj.text5 = memInfoObj.swapfree;
     response.end(JSON.stringify(returnObj));
 
-
-
 }
 
-async function getSystemSoundVolume (response) {
+async function getSoundVolAndBrightness(response) {
     var returnObj = {};
-    returnObj.text= await loudness.getVolume();
+    returnObj.text0= await loudness.getVolume();
+    returnObj.text1 = await brightness.get()*100;
     response.end(JSON.stringify(returnObj));
 }
 
+
 async function setSystemSoundVolume(response, vol){
-    var returnObj = {}
+    var returnObj = {};
     try{
         await loudness.setVolume(vol);
         returnObj.text = "success"
@@ -264,11 +273,26 @@ async function setSystemSoundVolume(response, vol){
 }
 
 
-var QRCode = require('qrcode');
-QRCode.toDataURL('I am pony', function (err, url){
-    console.log(url);
 
-});
+async function setBrightness(response, vol){
+    var returnObj = {};
+    vol = vol / 100;
+    try{
+        await brightness.set(vol)
+        returnObj.text = "success"
+    }
+    catch (e) {
+        console.log(e)
+        returnObj.text = "fail"
+    }
+    response.end(JSON.stringify(returnObj));
+}
+
+function shutdownServer() {
+    server.close();
+    console.log("have successfully shutdown the server")
+}
+
 
 require('openurl').open("http://localhost:3000/userGuide.html");
 
