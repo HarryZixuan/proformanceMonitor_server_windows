@@ -1,6 +1,7 @@
 const { audio } = require('system-control');
 const loudness  = require('loudness');
 const brightness = require('brightness');
+var QRCode = require('qrcode');
 var os = require("os");
 const si = require('systeminformation');
 
@@ -105,8 +106,8 @@ var server = require('http')
                 else if (dataObj.text == "memoryInfo"){
                     getMemoryInfo(response);
                 }
-                else if(dataObj.text == "getSoundVolAndBrightness"){
-                    getSoundVolAndBrightness(response)
+                else if(dataObj.text == "getSoundAndDisplayInfo"){
+                    getSoundAndDisplayInfo(response);
                 }
 
                 else if(dataObj.text == "setSoundVolume"){
@@ -116,9 +117,16 @@ var server = require('http')
                 else if(dataObj.text == "setBrightness"){
                     setBrightness(response, dataObj.value);
                 }
+                else if(dataObj.text == "networkInfo"){
+                    getNetworkInfo(response);
+                }
+                else if(dataObj.text =="networkUsage"){
+                    getNetworkUsage(response);
+                }
                 else if(dataObj.text == "shutdownServer"){
                     shutdownServer();
                 }
+
 
 
                 //object to return to client
@@ -252,10 +260,16 @@ async function getMemoryInfo(response) {
 
 }
 
-async function getSoundVolAndBrightness(response) {
+async function getSoundAndDisplayInfo(response) {
     var returnObj = {};
+    displayObj = await si.graphics();
     returnObj.text0= await loudness.getVolume();
     returnObj.text1 = await brightness.get()*100;
+    returnObj.text2 = displayObj.controllers[0].model;
+    returnObj.text3 = displayObj.controllers[0].bus;
+    returnObj.text4 = displayObj.displays[0].currentResX + "X" + displayObj.displays[0].currentResY;
+    returnObj.text5 = displayObj.displays[0].model;
+    returnObj.text6 = displayObj.displays[0].connection;
     response.end(JSON.stringify(returnObj));
 }
 
@@ -288,10 +302,45 @@ async function setBrightness(response, vol){
     response.end(JSON.stringify(returnObj));
 }
 
+async function getNetworkInfo(response) {
+    var defaultInterface = await si.networkInterfaceDefault();
+    var networkInfoObj = await si.networkInterfaces();
+
+    var returnObj = {};
+
+    for(let i of networkInfoObj){
+        if(i.iface == defaultInterface){
+            console.log(i)
+            returnObj.text0 = i.ip4;
+            returnObj.text1 = i.ip6;
+            returnObj.text2 = i.type;
+            returnObj.text3 = i.speed;
+            returnObj.text4 = i.virtual;
+        }
+    }
+    response.end(JSON.stringify(returnObj));
+}
+
+async function getNetworkUsage(response) {
+    let networkUsageObj = await si.networkStats();
+    let ping = await si.inetChecksite('google.com');
+    let returnObj = {};
+
+    returnObj.text0 = networkUsageObj[0].tx_sec;
+    returnObj.text1 = networkUsageObj[0].rx_sec;
+    returnObj.text2 = ping.ms;
+    console.log(returnObj);
+    response.end(JSON.stringify(returnObj));
+
+}
+
 function shutdownServer() {
     server.close();
-    console.log("have successfully shutdown the server")
+    console.log("server has been successfully shutdwon")
 }
+
+
+
 
 
 require('openurl').open("http://localhost:3000/userGuide.html");

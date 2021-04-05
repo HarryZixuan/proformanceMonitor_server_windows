@@ -23,22 +23,51 @@
 // }
 // console.log(results["en0"][0]);
 
-var server = require('http').createServer(function(req, res) {
-    res.end('Good job!');
-});
+// var server = require('http').createServer(function(req, res) {
+//     res.end('Good job!');
+// });
+//
+// // Wrap the server object with additional functionality.
+// // This should be done immediately after server construction, or before you start listening.
+// // Additional functionailiy needs to be added for http server events to properly shutdown.
+// server = require('http-shutdown')(server);
+//
+// // Listen on a port and start taking requests.
+// server.listen(3000);
+//
+// // Sometime later... shutdown the server.
+// server.shutdown(function(err) {
+//     if (err) {
+//         return console.log('shutdown failed', err.message);
+//     }
+//     console.log('Everything is cleanly shutdown.');
+// });
 
-// Wrap the server object with additional functionality.
-// This should be done immediately after server construction, or before you start listening.
-// Additional functionailiy needs to be added for http server events to properly shutdown.
-server = require('http-shutdown')(server);
+const si = require('systeminformation')
+// si.graphics().then(data => console.log(data.controllers[0]['model']))
+//
+// networkTest();
+//
+// async function networkTest() {
+//     var defaultInterface = await si.networkInterfaceDefault();
+//
+//     var obj = await si.networkInterfaces();
+//
+//
+//     for(let i of obj){
+//         if(i.iface == defaultInterface){
+//             console.log(i.ip4)
+//         }
+//     }
+//
+// }
+test();
 
-// Listen on a port and start taking requests.
-server.listen(3000);
 
-// Sometime later... shutdown the server.
-server.shutdown(function(err) {
-    if (err) {
-        return console.log('shutdown failed', err.message);
-    }
-    console.log('Everything is cleanly shutdown.');
-});
+async function test() {
+
+    var obj = await si.graphics();
+
+    console.log(obj.controllers[0].model)
+
+}
