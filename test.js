@@ -68,6 +68,6 @@ async function test() {
 
     var obj = await si.graphics();
 
-    console.log(obj.controllers[0].model)
+    console.log(obj.controllers[0])
 
 }
