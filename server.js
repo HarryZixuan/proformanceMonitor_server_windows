@@ -41,10 +41,6 @@ var get_mime = function(filename) {
 var server = require('http')
     .createServer(function(request, response) {
         var urlObj = url.parse(request.url, true, false);
-        //console.log("\n============================");
-        //console.log("PATHNAME: " + urlObj.pathname);
-        //console.log("REQUEST: " + ROOT_DIR + urlObj.pathname);
-        //console.log("METHOD: " + request.method);
 
         var receivedData = "";
 
@@ -55,44 +51,18 @@ var server = require('http')
 
         //event handler for the end of the message
         request.on("end", function() {
-            //console.log("received data: ", receivedData);
-            //console.log("type: ", typeof receivedData);
 
             //if it is a POST request then echo back the data.
             if (request.method == "POST") {
                 var dataObj = JSON.parse(receivedData);
-                //console.log("received data object: ", dataObj);
-                //console.log("type: ", typeof dataObj);
 
-                console.log("USER REQUEST: " + dataObj.text);
+
+                //console.log("USER REQUEST: " + dataObj.text);
                 var returnObj = {};
 
                 if(dataObj.text =="QRCode"){
-                    var returnObj = {};
-                    'use strict';
+                    generateQRcode(response)
 
-                    const { networkInterfaces } = require('os');
-
-                    const nets = networkInterfaces();
-                    const results = Object.create(null); // Or just '{}', an empty object
-
-                    for (const name of Object.keys(nets)) {
-                        for (const net of nets[name]) {
-                            // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-                            if (net.family === 'IPv4' && !net.internal) {
-                                if (!results[name]) {
-                                    results[name] = [];
-                                }
-                                results[name].push(net.address);
-                            }
-                        }
-                    }
-                    console.log(results["en0"][0]);
-
-                    QRCode.toDataURL("http://"+results["en0"][0] + ":3000/Proformance.html", function (err, url){
-                        returnObj.text = url;
-                        response.end(JSON.stringify(returnObj));
-                    });
                 }
 
                 else if(dataObj.text == "cpuUsage"){
@@ -203,16 +173,36 @@ function cpuUsage (){
         //Calculate the average percentage CPU usage
         percentageCPU = 100 - ~~(100 * idleDifference / totalDifference);
 
-        //Output result to console
-        //console.log(percentageCPU + "% CPU Usage.");
 
     }, 100);
     return percentageCPU;
 }
 
+async function generateQRcode(response){
+    var returnObj = {};
+    var defaultInterface = await si.networkInterfaceDefault();
+    var networkInfoObj = await si.networkInterfaces();
+    var ip4 = "";
+
+    for(let i of networkInfoObj){
+        if(i.iface == defaultInterface){
+            //console.log(i)
+            ip4 = i.ip4;
+        }
+    }
+
+    QRCode.toDataURL("http://"+ip4 + ":3000/Proformance.html", function (err, url){
+        returnObj.text = url;
+        response.end(JSON.stringify(returnObj));
+    });
+
+}
+
 async function getCpuUsage(response) {
     var returnObj = {};
+
     cpuTemperObj = await si.cpuTemperature();
+    //console.log(cpuTemperObj)
     returnObj.text1 = cpuTemperObj.main;
     returnObj.text0 = cpuUsage();
     response.end(JSON.stringify(returnObj));
@@ -220,21 +210,12 @@ async function getCpuUsage(response) {
 
 }
 
-// async function setSystemSoundVolume(soundVolume){
-//     audio.volume().then(volume => console.log(volume)); // get system volume
-//     audio.volume(parseInt(soundVolume))
-//             .then(() => returnValue = "sound volume changed successfully") // set system volume
-//             .catch((err) => returnValue = err.toString());
-//
-//     const vol = loudness.getVolume()
-//     console.log(vol)
-//     return returnValue;
-// }
 
 async function getCpuInfo(response) {
     var returnObj = {};
 
     var cpuInfoObj = await si.cpu();
+
 
     returnObj.text0 = cpuInfoObj.manufacturer;
     returnObj.text1 = cpuInfoObj.brand;
@@ -263,8 +244,15 @@ async function getMemoryInfo(response) {
 async function getSoundAndDisplayInfo(response) {
     var returnObj = {};
     displayObj = await si.graphics();
+
+    //some computer especially desktop connecting to monitor via HDMI/DP cable, will not support adjusting monitor
+    //brightness. adding a try catch to handle
+    try{returnObj.text1 = await brightness.get()*100}
+    catch (e){
+        console.log("This computer does not support adjusting monitor brightness!");
+        returnObj.text1 = 0;}
+
     returnObj.text0= await loudness.getVolume();
-    returnObj.text1 = await brightness.get()*100;
     returnObj.text2 = displayObj.controllers[0].model;
     returnObj.text3 = displayObj.controllers[0].bus;
     returnObj.text4 = displayObj.displays[0].currentResX + "X" + displayObj.displays[0].currentResY;
@@ -296,7 +284,7 @@ async function setBrightness(response, vol){
         returnObj.text = "success"
     }
     catch (e) {
-        console.log(e)
+        console.log("This computer does not support adjusting monitor birghtness!")
         returnObj.text = "fail"
     }
     response.end(JSON.stringify(returnObj));
@@ -310,7 +298,7 @@ async function getNetworkInfo(response) {
 
     for(let i of networkInfoObj){
         if(i.iface == defaultInterface){
-            console.log(i)
+            //console.log(i)
             returnObj.text0 = i.ip4;
             returnObj.text1 = i.ip6;
             returnObj.text2 = i.type;
@@ -323,13 +311,13 @@ async function getNetworkInfo(response) {
 
 async function getNetworkUsage(response) {
     let networkUsageObj = await si.networkStats();
-    let ping = await si.inetChecksite('google.com');
+    let ping = await si.inetChecksite('google.ca');
     let returnObj = {};
 
     returnObj.text0 = networkUsageObj[0].tx_sec;
     returnObj.text1 = networkUsageObj[0].rx_sec;
     returnObj.text2 = ping.ms;
-    console.log(returnObj);
+    //console.log(returnObj);
     response.end(JSON.stringify(returnObj));
 
 }
@@ -338,9 +326,6 @@ function shutdownServer() {
     server.close();
     console.log("server has been successfully shutdwon")
 }
-
-
-
 
 
 require('openurl').open("http://localhost:3000/userGuide.html");

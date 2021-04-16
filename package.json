@@ -17,6 +17,7 @@
     "openurl": "^1.1.1",
     "qrcode": "^1.4.4",
     "system-control": "^0.1.1",
-    "systeminformation": "^5.6.10"
+    "systeminformation": "^5.6.10",
+    "win-audio": "^2.0.2"
   }
 }
