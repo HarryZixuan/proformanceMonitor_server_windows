@@ -1,7 +1,6 @@
 
 userGuideRequestObj = {text: "QRCode"};
 userGuideRequestJSON = JSON.stringify(userGuideRequestObj);
-
 $.post("userGuide", userGuideRequestJSON, function (data, status) {
     //console.log("data: " + data);
     //console.log("typeof: " + typeof data);

@@ -62,7 +62,6 @@ var server = require('http')
 
                 if(dataObj.text =="QRCode"){
                     generateQRcode(response)
-
                 }
 
                 else if(dataObj.text == "cpuUsage"){
@@ -317,9 +316,7 @@ async function getNetworkUsage(response) {
     returnObj.text0 = networkUsageObj[0].tx_sec;
     returnObj.text1 = networkUsageObj[0].rx_sec;
     returnObj.text2 = ping.ms;
-    //console.log(returnObj);
     response.end(JSON.stringify(returnObj));
-
 }
 
 function shutdownServer() {
