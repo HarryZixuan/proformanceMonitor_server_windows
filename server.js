@@ -1,3 +1,16 @@
+/*
+ZixuanZhang 101027027 SCS Carleton
+Windows server file
+Reused the COMP 2406 server files
+Reference:
+systeminformation: https://systeminformation.io/
+cpuUsage: https://gist.github.com/bag-man/5570809
+openUrl: https://www.npmjs.com/package/openurl
+QR Code: https://www.npmjs.com/package/qrcode
+system-control(sound volume): https://www.npmjs.com/package/system-control
+brightness: https://www.npmjs.com/package/brightness
+*/
+
 const { audio } = require('system-control');
 const loudness  = require('loudness');
 const brightness = require('brightness');
@@ -53,6 +66,7 @@ var server = require('http')
         request.on("end", function() {
 
             //if it is a POST request then echo back the data.
+            //use POST to handle performance info requests
             if (request.method == "POST") {
                 var dataObj = JSON.parse(receivedData);
 
@@ -95,8 +109,6 @@ var server = require('http')
                 else if(dataObj.text == "shutdownServer"){
                     shutdownServer();
                 }
-
-
 
                 //object to return to client
                 //response.writeHead(200, { "Content-Type": MIME_TYPES["txt"] });
@@ -216,6 +228,7 @@ async function getCpuInfo(response) {
     var cpuInfoObj = await si.cpu();
 
 
+    //returnObj.text0, text1,...textn, n = expectedListSize in Application
     returnObj.text0 = cpuInfoObj.manufacturer;
     returnObj.text1 = cpuInfoObj.brand;
     returnObj.text2 = cpuInfoObj.speed;
@@ -310,6 +323,7 @@ async function getNetworkInfo(response) {
 
 async function getNetworkUsage(response) {
     let networkUsageObj = await si.networkStats();
+    //keep pinging google.ca to get current latency
     let ping = await si.inetChecksite('google.ca');
     let returnObj = {};
 
